@@ -4,13 +4,22 @@ const mysql = require("mysql2/promise");
 const cors = require("cors");
 
 const app = express();
-const port = 8000;
+// const port = 8000;
+
+// const pool = mysql.createPool({
+//   host: "localhost",
+//   user: "root",
+//   password: "R@ushan2504",
+//   database: "vieltalk",
+// });
+
+const port = 3306;
 
 const pool = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "R@ushan2504",
-  database: "vieltalk",
+  host: "jj820qt5lpu6krut.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+  user: "n61x0364b8fbygfn",
+  password: "r8sp5e4c96fvtyl8",
+  database: "il1p6oci4mxjtcx4",
 });
 
 app.use(cors());
