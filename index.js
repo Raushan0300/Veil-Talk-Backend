@@ -16,10 +16,10 @@ const app = express();
 const port = 3306;
 
 const pool = mysql.createPool({
-  host: "jj820qt5lpu6krut.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-  user: "n61x0364b8fbygfn",
-  password: "r8sp5e4c96fvtyl8",
-  database: "il1p6oci4mxjtcx4",
+  host: "sql213.infinityfree.com",
+  user: "if0_36083942",
+  password: "Ag9hfQBVZZTP",
+  database: "if0_36083942_veiltalk_db",
 });
 
 app.use(cors());
