@@ -20,6 +20,7 @@ const pool = mysql.createPool({
   user: "if0_36083942",
   password: "Ag9hfQBVZZTP",
   database: "if0_36083942_veiltalk_db",
+  port: 3306,
 });
 
 app.use(cors());
