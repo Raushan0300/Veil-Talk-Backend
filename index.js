@@ -13,21 +13,19 @@ const app = express();
 //   database: "vieltalk",
 // });
 
-const port = 3306;
-
 const pool = mysql.createPool({
-  host: "sql213.infinityfree.com",
-  user: "if0_36083942",
-  password: "Ag9hfQBVZZTP",
-  database: "if0_36083942_veiltalk_db",
-  port: 3306,
+  host: "mysql-17717cd0-veiltalk.a.aivencloud.com",
+  user: "avnadmin",
+  password: "AVNS_qV5WU1yoI_3VPhVKAwu",
+  database: "defaultdb",
+  port:28143,
 });
 
 app.use(cors());
 app.use(bodyParser.json());
 
 app.post("/api/register", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, pass } = req.body;
 
   try {
     const connection = await pool.getConnection();
@@ -41,8 +39,8 @@ app.post("/api/register", async (req, res) => {
       res.json({ success: true, message: "Email already registered." });
     } else {
       await connection.query(
-        "INSERT INTO users (email, password) VALUES (?,?)",
-        [email, password]
+        "INSERT INTO users (email, pass) VALUES (?,?)",
+        [email, pass]
       );
       res.json({ message: "Account created successfully." });
     }
