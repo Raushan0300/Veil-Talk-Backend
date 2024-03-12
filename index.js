@@ -86,6 +86,7 @@ app.post("/api/login", async (req, res) => {
               res.status(200).json({
                 data: {
                   user: {
+                    id: user._id,
                     email: user.email,
                     name: user.name,
                     age: user.age,
@@ -131,6 +132,7 @@ app.get("/api/conversation/:userId", async (req, res) => {
         const user = await Users.findById(receiverId);
         return {
           user: {
+            id:user._id,
             email: user.email,
             name: user.name,
             age: user.age,
@@ -161,7 +163,11 @@ app.get("/api/message/:conversationId", async (req, res) => {
   try {
     const conversationId = req.params.conversationId;
     const messages = await Messages.find({ conversationId });
-    res.status(200).json(messages);
+    const messageUserData=Promise.all(messages.map(async(message)=>{
+      const user=await Users.findById(message.senderId);
+      return {user:{id:user._id,email:user.email,name:user.name,age:user.age,gender:user.gender},message:{message:message.message}};
+    }))
+    res.status(200).json(await messageUserData);
   } catch (error) {
     console.log(error);
   }
