@@ -11,7 +11,7 @@ app.use(cors());
 const server=require('http').createServer(app);
 const io = require('socket.io')(server, {
   cors:{
-    origin:"https://veiltalk.netlify.app",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
   }
 })
 
