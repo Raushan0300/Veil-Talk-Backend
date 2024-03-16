@@ -1,7 +1,15 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jsonwebtoken = require("jsonwebtoken");
-const cors=require('cors');
+const cors = require("cors");
+const io = require('socket.io')(8080, {
+  cors:{
+    origin:"https://veiltalk.netlify.app",
+  }
+})
+
+//http://localhost:8000
+//https://veiltalk.netlify.app
 
 // Connect to the database
 require("./connection");
@@ -19,6 +27,50 @@ app.use(cors());
 
 // Port
 const port = process.env.PORT || 8000;
+
+//Socket.io
+let users = [];
+io.on('connection', socket=>{
+  console.log('user connected', socket.id);
+  socket.on('addUser', userId=>{
+    const isUserExist=users.find(user=>user.userId===userId);
+    if(!isUserExist){
+      const user={userId, socketId:socket.id};
+    users.push(user);
+    io.emit('getUsers', users);
+    }
+  });
+
+  socket.on("sendMessage", async({senderId, receiverId, message, conversationId})=>{
+    const receiver=users.find(user=>user.userId===receiverId);
+    const sender=users.find(user=>user.userId===senderId);
+    const user=await Users.findById(senderId);
+    if(receiver){
+      io.to(receiver.socketId).to(sender.socketId).emit('getMessage',{
+        senderId,
+        message,
+        conversationId,
+        receiverId,
+        user:{id:user._id, email:user.email, name:user.name, age:user.age, gender:user.gender}
+      });
+    } else{
+      io.to(sender.socketId).emit('getMessage',{
+        senderId,
+        message,
+        conversationId,
+        receiverId,
+        user:{id:user._id, email:user.email, name:user.name, age:user.age, gender:user.gender}
+      });
+    }
+  });
+
+
+  socket.on("disconnect",()=>{
+    users=users.filter(user=>user.socketId!==socket.id);
+    io.emit("getUsers", users);
+  })
+  // io.emit('getUsers', socket.userId);
+});
 
 // Routes
 app.get("/", (req, res) => {
@@ -44,7 +96,7 @@ app.post("/api/register", async (req, res, next) => {
         });
         res.status(200).send("User registered successfully");
       }
-    };
+    }
   } catch (error) {
     console.log(error);
   }
@@ -111,8 +163,18 @@ app.post("/api/conversation", async (req, res) => {
     const newConversation = new Conversations({
       members: [senderId, receiverId],
     });
-    await newConversation.save();
-    res.status(200).send("Conversation created successfully");
+    const savedConversation = await newConversation.save();
+    const user = await Users.findById(receiverId);
+    res.status(200).json({
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        age: user.age,
+        gender: user.gender,
+      },
+      conversationId: savedConversation._id,
+    });
   } catch (error) {
     console.log(error);
   }
@@ -132,7 +194,7 @@ app.get("/api/conversation/:userId", async (req, res) => {
         const user = await Users.findById(receiverId);
         return {
           user: {
-            id:user._id,
+            id: user._id,
             email: user.email,
             name: user.name,
             age: user.age,
@@ -163,10 +225,21 @@ app.get("/api/message/:conversationId", async (req, res) => {
   try {
     const conversationId = req.params.conversationId;
     const messages = await Messages.find({ conversationId });
-    const messageUserData=Promise.all(messages.map(async(message)=>{
-      const user=await Users.findById(message.senderId);
-      return {user:{id:user._id,email:user.email,name:user.name,age:user.age,gender:user.gender},message:{message:message.message}};
-    }))
+    const messageUserData = Promise.all(
+      messages.map(async (message) => {
+        const user = await Users.findById(message.senderId);
+        return {
+          user: {
+            id: user._id,
+            email: user.email,
+            name: user.name,
+            age: user.age,
+            gender: user.gender,
+          },
+          message: { message: message.message },
+        };
+      })
+    );
     res.status(200).json(await messageUserData);
   } catch (error) {
     console.log(error);
@@ -177,19 +250,17 @@ app.get("/api/users", async (req, res) => {
   try {
     const users = await Users.find();
     const userData = Promise.all(
-      users.map(
-        async(user) => {
-          return {
-            users: {
-              email: user.email,
-              name: user.name,
-              age: user.age,
-              gender: user.gender,
-            },
-            userId: user._id,
-          };
-        }
-      )
+      users.map(async (user) => {
+        return {
+          users: {
+            email: user.email,
+            name: user.name,
+            age: user.age,
+            gender: user.gender,
+          },
+          userId: user._id,
+        };
+      })
     );
     res.status(200).json(await userData);
   } catch (error) {

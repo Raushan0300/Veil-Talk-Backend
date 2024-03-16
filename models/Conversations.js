@@ -7,6 +7,6 @@ const conversationSchema = mongoose.Schema({
   },
 });
 
-const Conversation = mongoose.model("Converstion", conversationSchema);
+const Conversation = mongoose.model("Conversation", conversationSchema);
 
 module.exports = Conversation;
