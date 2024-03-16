@@ -2,7 +2,14 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jsonwebtoken = require("jsonwebtoken");
 const cors = require("cors");
-const io = require('socket.io')(8080)
+
+const app = express();
+const server=require('http').createServer(app);
+const io = require('socket.io')(server, {
+  cors:{
+    origin:"https://veiltalk.netlify.app",
+  }
+})
 
 //http://localhost:8000
 //https://veiltalk.netlify.app
@@ -16,7 +23,7 @@ const Conversations = require("./models/Conversations");
 const Messages = require("./models/Messages");
 
 // Middlewares
-const app = express();
+// const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
@@ -264,6 +271,6 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
