@@ -2,11 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jsonwebtoken = require("jsonwebtoken");
 const cors = require("cors");
-// const io = require('socket.io')(8080, {
-//   cors:{
-//     origin:"https://veiltalk.netlify.app",
-//   }
-// })
+const io = require('socket.io')
 
 //http://localhost:8000
 //https://veiltalk.netlify.app
@@ -29,48 +25,48 @@ app.use(cors());
 const port = process.env.PORT || 8000;
 
 //Socket.io
-// let users = [];
-// io.on('connection', socket=>{
-//   console.log('user connected', socket.id);
-//   socket.on('addUser', userId=>{
-//     const isUserExist=users.find(user=>user.userId===userId);
-//     if(!isUserExist){
-//       const user={userId, socketId:socket.id};
-//     users.push(user);
-//     io.emit('getUsers', users);
-//     }
-//   });
+let users = [];
+io.on('connection', socket=>{
+  console.log('user connected', socket.id);
+  socket.on('addUser', userId=>{
+    const isUserExist=users.find(user=>user.userId===userId);
+    if(!isUserExist){
+      const user={userId, socketId:socket.id};
+    users.push(user);
+    io.emit('getUsers', users);
+    }
+  });
 
-//   socket.on("sendMessage", async({senderId, receiverId, message, conversationId})=>{
-//     const receiver=users.find(user=>user.userId===receiverId);
-//     const sender=users.find(user=>user.userId===senderId);
-//     const user=await Users.findById(senderId);
-//     if(receiver){
-//       io.to(receiver.socketId).to(sender.socketId).emit('getMessage',{
-//         senderId,
-//         message,
-//         conversationId,
-//         receiverId,
-//         user:{id:user._id, email:user.email, name:user.name, age:user.age, gender:user.gender}
-//       });
-//     } else{
-//       io.to(sender.socketId).emit('getMessage',{
-//         senderId,
-//         message,
-//         conversationId,
-//         receiverId,
-//         user:{id:user._id, email:user.email, name:user.name, age:user.age, gender:user.gender}
-//       });
-//     }
-//   });
+  socket.on("sendMessage", async({senderId, receiverId, message, conversationId})=>{
+    const receiver=users.find(user=>user.userId===receiverId);
+    const sender=users.find(user=>user.userId===senderId);
+    const user=await Users.findById(senderId);
+    if(receiver){
+      io.to(receiver.socketId).to(sender.socketId).emit('getMessage',{
+        senderId,
+        message,
+        conversationId,
+        receiverId,
+        user:{id:user._id, email:user.email, name:user.name, age:user.age, gender:user.gender}
+      });
+    } else{
+      io.to(sender.socketId).emit('getMessage',{
+        senderId,
+        message,
+        conversationId,
+        receiverId,
+        user:{id:user._id, email:user.email, name:user.name, age:user.age, gender:user.gender}
+      });
+    }
+  });
 
 
-//   socket.on("disconnect",()=>{
-//     users=users.filter(user=>user.socketId!==socket.id);
-//     io.emit("getUsers", users);
-//   })
-//   // io.emit('getUsers', socket.userId);
-// });
+  socket.on("disconnect",()=>{
+    users=users.filter(user=>user.socketId!==socket.id);
+    io.emit("getUsers", users);
+  })
+  // io.emit('getUsers', socket.userId);
+});
 
 // Routes
 app.get("/", (req, res) => {
