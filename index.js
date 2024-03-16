@@ -4,6 +4,10 @@ const jsonwebtoken = require("jsonwebtoken");
 const cors = require("cors");
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cors());
+
 const server=require('http').createServer(app);
 const io = require('socket.io')(server, {
   cors:{
@@ -24,9 +28,9 @@ const Messages = require("./models/Messages");
 
 // Middlewares
 // const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cors());
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: false }));
+// app.use(cors());
 
 // Port
 const port = process.env.PORT || 8000;
