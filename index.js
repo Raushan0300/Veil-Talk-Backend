@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jsonwebtoken = require("jsonwebtoken");
 const cors = require("cors");
-const io = require('socket.io')
+const io = require('socket.io')(8080)
 
 //http://localhost:8000
 //https://veiltalk.netlify.app
